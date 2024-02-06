@@ -174,48 +174,7 @@ public class GameDal
         action.SafeExecute();
     }
 
-    public int AddNewPlatform(Platform platform)
-    {
-        int affected = 0;
-
-        Action<DbConnection> action =
-            conn =>
-            {
-                string createGamesStr = $@"
-
-             insert into platforms 
-            (
-                platform_id,
-                platform_name,
-                platform_description
-            )
-
-            values
-            (
-                :platform_id,
-                :platform_name,
-                :platform_description
-                
-            )
-            ";
-
-                using DbCommand cmd = conn.CreateCommand();
-                cmd.CommandText = createGamesStr;
-                cmd.CommandType = System.Data.CommandType.Text;
-
-                //vado a verificare i parametri
-                cmd.AddParameterWithValue("platfform_id", platform.PlatformId);
-                cmd.AddParameterWithValue("platform_name", platform.PlatformName);
-                cmd.AddParameterWithValue("platform_description", platform.PlatformDescription);
-
-
-                affected = cmd.ExecuteNonQuery();
-            };
-
-        OpenAndExecute(action);
-
-        return affected;
-    }
+   
     public int AddNewGame(Game game)
     {
         int affected = 0;
