@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
+namespace GamesDataAccess;
 
-class GameDal
+public class GameDal
 {
     //public string ConnectionString { get; }
 
@@ -16,8 +17,67 @@ class GameDal
         conn.Open();
         action(conn);
     }
+    public void CreateTableGame()
+    {
+        string createGamesStr = $@"
+            create table games 
+            (
+                game_id varchar(20) primary key,
+                game_name varchar(255),
+                game_description varchar(1024),
+                game_tags varchar(5000)
+            )
+            ";
 
-    public void CreateTableGames()
+        CreateTable(createGamesStr);
+    }
+    public void CreateTableStore()
+    {
+        string createStoresStr = $@"
+            create table stores 
+            (
+                store_id nvarchar(20) PRIMARY KEY,
+		        store_name nvarchar(100) UNIQUE,
+		        store_description nvarchar(255),
+		        store_url nvarchar(100)
+            )
+            ";
+
+        CreateTable(createStoresStr);
+    }
+    public void CreateTablePlatform()
+    {
+        string createPlatformsStr = $@"
+            create table platforms 
+            (
+                platform_id nvarchar(20) PRIMARY KEY,
+		        platform_name nvarchar(100) UNIQUE,
+		        platform_description nvarchar(255)
+            )
+            ";
+
+        CreateTable(createPlatformsStr);
+    }
+    public void CreateTableTransaction()
+    {
+        string createTransactionsStr = $@"
+            create table transactions 
+            (
+                transaction_id NVARCHAR(20) PRIMARY KEY,
+		        purchase_date datetime2,
+		        is_virtual tinyint,
+		        store_id nvarchar (20) REFERENCES	[stores]([store_id]),
+		        game_id nvarchar (20) REFERENCES	[videogames]([game_id]),
+		        platform_id nvarchar (20) REFERENCES	[platforms]([platform_id]),
+		        price numeric(6, 2) NULL,
+		        currency char(3) DEFAULT 'EUR',
+		        CHECK (price >= 0)
+            )
+            ";
+
+        CreateTable(createTransactionsStr);
+    }
+    private void CreateTable(string table)
     {
         /*
             //creo connessione
@@ -51,24 +111,17 @@ class GameDal
         //using SQLiteConnection conn =
         //    new SQLiteConnection(ConnectionString);
         //conn.Open();
+        string createStr = table;
 
         Action<DbConnection> action =
             conn =>
             {
                 //L' if not exist serve a non far bloccare il programma se esiste già la tabella
-                string createGamesStr = $@"
-            create table games 
-            (
-                game_id varchar(20) primary key,
-                game_name varchar(255),
-                game_description varchar(1024),
-                game_tags varchar(5000)
-            )
-            ";
+             
 
                 //crea un comando da mandare al DB
                 using DbCommand cmd = conn.CreateCommand();
-                cmd.CommandText = createGamesStr;
+                cmd.CommandText = createStr;
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 //numero di righe coinvolte
