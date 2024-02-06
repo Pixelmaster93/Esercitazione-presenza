@@ -1,10 +1,15 @@
 ﻿using System.Data.SQLite;
+using TestAppConsole;
 
 //dove creo i dati, o docv eli vado a prendere
 string connStr = @"Data Source=..\..\Data\test.db;Version=3;";
 
-GameDal gamesDal = new GameDal(connStr);
-gamesDal.CreateTableGames();
+GameDal gamesDal = 
+    new GameDal
+    (
+        () => new SQLiteConnection(connStr)
+    );
+//gamesDal.CreateTableGames();
 
 /*
 int affected =
@@ -42,8 +47,8 @@ Console.WriteLine($"Added {affected} game(s)");
 
 
 
-var zeldaGames = gamesDal.GetGamesByPartialName("zel");
-foreach (var game in zeldaGames)
+var games = gamesDal.GetGamesByPartialName(null,null);
+foreach (var game in games)
     Console.WriteLine(game);
 
 

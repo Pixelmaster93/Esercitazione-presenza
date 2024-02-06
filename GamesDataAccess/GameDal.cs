@@ -1,17 +1,18 @@
-﻿using System.Data.SQLite;
+﻿using System.Data.Common;
 
 class GameDal
 {
-    public string ConnectionString { get; }
-    public GameDal( string connectionString)
+    //public string ConnectionString { get; }
+
+    private Func<DbConnection> _connectionFactory;
+    public GameDal(Func<DbConnection> connectionFactory)
     {
-        ConnectionString = connectionString;
+        _connectionFactory = connectionFactory;
     }
 
-    private void OpenAndExecute(Action<SQLiteConnection> action)
+    private void OpenAndExecute(Action<DbConnection> action)
     {
-        using SQLiteConnection conn =
-            new SQLiteConnection(ConnectionString);
+        using DbConnection conn = _connectionFactory();
         conn.Open();
         action(conn);
     }
@@ -51,12 +52,12 @@ class GameDal
         //    new SQLiteConnection(ConnectionString);
         //conn.Open();
 
-        Action<SQLiteConnection> action =
+        Action<DbConnection> action =
             conn =>
             {
                 //L' if not exist serve a non far bloccare il programma se esiste già la tabella
                 string createGamesStr = $@"
-            create table if not exists games 
+            create table games 
             (
                 game_id varchar(20) primary key,
                 game_name varchar(255),
@@ -66,7 +67,7 @@ class GameDal
             ";
 
                 //crea un comando da mandare al DB
-                using SQLiteCommand cmd = conn.CreateCommand();
+                using DbCommand cmd = conn.CreateCommand();
                 cmd.CommandText = createGamesStr;
                 cmd.CommandType = System.Data.CommandType.Text;
 
@@ -80,13 +81,9 @@ class GameDal
 
     public int AddNewGame(Game game)
     {
-        //using SQLiteConnection conn =
-        //    new SQLiteConnection(ConnectionString);
-        //conn.Open();
-
         int affected = 0;
 
-        Action<SQLiteConnection> action =
+        Action<DbConnection> action =
             conn =>
             {
                 string createGamesStr = $@"
@@ -109,15 +106,15 @@ class GameDal
             )
             ";
 
-                using SQLiteCommand cmd = conn.CreateCommand();
+                using DbCommand cmd = conn.CreateCommand();
                 cmd.CommandText = createGamesStr;
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 //vado a verificare i parametri
-                cmd.Parameters.AddWithValue("game_id", game.GameId);
-                cmd.Parameters.AddWithValue("game_name", game.GameName);
-                cmd.Parameters.AddWithValue("game_description", game.GameDescription);
-                cmd.Parameters.AddWithValue("game_tags", game.GameTags);
+                cmd.AddParameterWithValue("game_id", game.GameId);
+                cmd.AddParameterWithValue("game_name", game.GameName);
+                cmd.AddParameterWithValue("game_description", game.GameDescription);
+                cmd.AddParameterWithValue("game_tags", game.GameTags);
 
 
                 affected = cmd.ExecuteNonQuery();
@@ -133,13 +130,9 @@ class GameDal
 
     public Game[] GetGamesByPartialName(string? partialName, string? partialTags)
     {
-
-        //using SQLiteConnection conn =
-        //    new SQLiteConnection(ConnectionString);
-        //conn.Open();
         List<Game> games = new List<Game>();
 
-        Action<SQLiteConnection> action =
+        Action<DbConnection> action =
             conn =>
             {
 
@@ -150,7 +143,7 @@ class GameDal
                         game_description,
                         game_tags
                     from games
-                    where 1 = 1";
+                    where 1 = 1 ";
                 
                 if (partialName is not null)
                 {
@@ -164,13 +157,18 @@ class GameDal
                         $@"and game_tags like '%' || :partialtags || '%' ";
                 }
 
-                using SQLiteCommand cmd = conn.CreateCommand();
+                using DbCommand cmd = conn.CreateCommand();
                 cmd.CommandText = selectText;
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 if (selectText is not null)
                 {
-                    cmd.Parameters.AddWithValue("partialname", partialName);
+                    cmd.AddParameterWithValue("partialname", partialName);
+                }
+
+                if (selectText is not null)
+                {
+                    cmd.AddParameterWithValue("partialtags", partialTags);
                 }
 
                 using var dataReader = cmd.ExecuteReader();
