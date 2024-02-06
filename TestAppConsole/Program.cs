@@ -9,43 +9,41 @@ string connStr = @"Data Source=..\..\Data\test.db;Version=3;";
 GameDal gamesDal = 
     new GameDal
     (
-        () => new SQLiteConnection(connStr)
+        () => new SQLiteConnection(connStr),
+        "||"
     );
 
 //Vado a creare le tabelle
-gamesDal.CreateTableGame();
-gamesDal.CreateTableStore();
-gamesDal.CreateTablePlatform();
-gamesDal.CreateTableTransaction();
+//gamesDal.CreateAllTables();
 
 
-int affected =
-    gamesDal
-    .AddNewGame
-        (
-            new Game
-            (
-                "zelda-botw",
-                "The Legend of Zelda Breath of the Wild",
-                "The best Zelda of all time?",
-                "zelda;nintendo;gdr;adevnture"
-            )
-        );
+//int affected =
+//    gamesDal
+//    .AddNewGame
+//        (
+//            new Game
+//            (
+//                "zelda-botw",
+//                "The Legend of Zelda Breath of the Wild",
+//                "The best Zelda of all time?",
+//                "zelda;nintendo;gdr;adevnture"
+//            )
+//        );
 
-    affected +=
-    gamesDal
-    .AddNewGame
-        (
-            new Game
-            (
-                "elden-ring",
-                "Elden Ring",
-                "GOTY 2022",
-                "soulslike;gdr;adevnture"
-            )
-        );
+//    affected +=
+//    gamesDal
+//    .AddNewGame
+//        (
+//            new Game
+//            (
+//                "elden-ring",
+//                "Elden Ring",
+//                "GOTY 2022",
+//                "soulslike;gdr;adevnture"
+//            )
+//        );
 
-Console.WriteLine($"Added {affected} game(s)");
+//Console.WriteLine($"Added {affected} game(s)");
 
 //Console.Write("Vuoi vedere tutti i giochi sul DB?(SI/NO) ");
 //string reponse = Console.ReadLine().ToString().ToUpper();
@@ -69,6 +67,8 @@ Console.WriteLine($"Added {affected} game(s)");
 
 //Console.WriteLine("Cancello il file!");
 //File.Delete("..\\..\\Data\\test.db");
-Console.ReadKey();
+
+
+gamesDal.DropAllTables();
 
 

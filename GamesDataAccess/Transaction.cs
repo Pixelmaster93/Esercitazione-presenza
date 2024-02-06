@@ -2,10 +2,10 @@
 (
     string TransactionId,
     string PurchaseDate,
-    string GIsVirtual,
+    string IsVirtual,
     string StoreId,
-    string Game_Id,
-    string Platform_Id,
+    string GameId,
+    string PlatformId,
     string Price,
     string Currency
 );

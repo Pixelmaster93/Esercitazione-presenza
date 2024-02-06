@@ -15,4 +15,16 @@ public static class Extension
 
         command.Parameters.Add(parameter);
     }
+
+    public static void SafeExecute(this Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (Exception)
+        { 
+
+        }
+    }
 }

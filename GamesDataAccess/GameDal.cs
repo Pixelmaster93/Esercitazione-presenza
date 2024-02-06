@@ -6,9 +6,11 @@ public class GameDal
     //public string ConnectionString { get; }
 
     private Func<DbConnection> _connectionFactory;
-    public GameDal(Func<DbConnection> connectionFactory)
+    private string _strConcatOperator;
+    public GameDal(Func<DbConnection> connectionFactory, string strConcatOperator)
     {
         _connectionFactory = connectionFactory;
+        _strConcatOperator = strConcatOperator;
     }
 
     private void OpenAndExecute(Action<DbConnection> action)
@@ -29,7 +31,7 @@ public class GameDal
             )
             ";
 
-        CreateTable(createGamesStr);
+        ExecuteNonQuery(createGamesStr);
     }
     public void CreateTableStore()
     {
@@ -43,7 +45,7 @@ public class GameDal
             )
             ";
 
-        CreateTable(createStoresStr);
+        ExecuteNonQuery(createStoresStr);
     }
     public void CreateTablePlatform()
     {
@@ -56,28 +58,28 @@ public class GameDal
             )
             ";
 
-        CreateTable(createPlatformsStr);
+        ExecuteNonQuery(createPlatformsStr);
     }
     public void CreateTableTransaction()
     {
         string createTransactionsStr = $@"
-            create table transactions 
+            create table game_transactions 
             (
-                transaction_id NVARCHAR(20) PRIMARY KEY,
-		        purchase_date datetime2,
-		        is_virtual tinyint,
-		        store_id nvarchar (20) REFERENCES	[stores]([store_id]),
-		        game_id nvarchar (20) REFERENCES	[videogames]([game_id]),
-		        platform_id nvarchar (20) REFERENCES	[platforms]([platform_id]),
-		        price numeric(6, 2) NULL,
-		        currency char(3) DEFAULT 'EUR',
+                transaction_id NVARCHAR(20) not null PRIMARY KEY,
+		        purchase_date datetime not null,
+		        is_virtual int not null,
+		        store_id nvarchar(20) not null REFERENCES	stores(store_id),
+		        game_id nvarchar(20) not null REFERENCES	videogames(game_id),
+		        platform_id nvarchar(20) not null REFERENCES	platforms(platform_id),
+		        price decimal(10, 2) not NULL,
+                notes clob null
 		        CHECK (price >= 0)
             )
             ";
 
-        CreateTable(createTransactionsStr);
+        ExecuteNonQuery(createTransactionsStr);
     }
-    private void CreateTable(string table)
+    private void ExecuteNonQuery(string commandText)
     {
         /*
             //creo connessione
@@ -111,17 +113,16 @@ public class GameDal
         //using SQLiteConnection conn =
         //    new SQLiteConnection(ConnectionString);
         //conn.Open();
-        string createStr = table;
+        
 
         Action<DbConnection> action =
             conn =>
             {
                 //L' if not exist serve a non far bloccare il programma se esiste già la tabella
              
-
                 //crea un comando da mandare al DB
                 using DbCommand cmd = conn.CreateCommand();
-                cmd.CommandText = createStr;
+                cmd.CommandText = commandText;
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 //numero di righe coinvolte
@@ -131,7 +132,90 @@ public class GameDal
         OpenAndExecute(action);
         
     }
+    public void CreateAllTables()
+    {
+        CreateTableGame();
+        CreateTablePlatform();
+        CreateTableStore();
+        CreateTableTransaction();
+    }
+    public void DropTableGames()
+    {
+        string dropTableText = $@"drop table games";
+        ExecuteNonQuery(dropTableText);
+    }
+    public void DropTableStores()
+    {
+        string dropTableText = $@"drop table stores";
+        ExecuteNonQuery(dropTableText);
+    }
+    public void DropTablePlatforms()
+    {
+        string dropTableText = $@"drop table platforms";
+        ExecuteNonQuery(dropTableText);
+    }
+    public void DropTableTransactions()
+    {
+        string dropTableText = $@"drop table game_transactions";
+        ExecuteNonQuery(dropTableText);
+    }
+    public void DropAllTables()
+    {
+        Action action = DropTableTransactions;
+        action.SafeExecute();
 
+        action = DropTableGames;
+        action.SafeExecute();
+
+        action = DropTablePlatforms;
+        action.SafeExecute();
+
+        action = DropTableStores;
+        action.SafeExecute();
+    }
+
+    public int AddNewPlatform(Platform platform)
+    {
+        int affected = 0;
+
+        Action<DbConnection> action =
+            conn =>
+            {
+                string createGamesStr = $@"
+
+             insert into platforms 
+            (
+                platform_id,
+                platform_name,
+                platform_description
+            )
+
+            values
+            (
+                :platform_id,
+                :platform_name,
+                :platform_description
+                
+            )
+            ";
+
+                using DbCommand cmd = conn.CreateCommand();
+                cmd.CommandText = createGamesStr;
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                //vado a verificare i parametri
+                cmd.AddParameterWithValue("platfform_id", platform.PlatformId);
+                cmd.AddParameterWithValue("platform_name", platform.PlatformName);
+                cmd.AddParameterWithValue("platform_description", platform.PlatformDescription);
+
+
+                affected = cmd.ExecuteNonQuery();
+            };
+
+        OpenAndExecute(action);
+
+        return affected;
+    }
     public int AddNewGame(Game game)
     {
         int affected = 0;
@@ -201,13 +285,13 @@ public class GameDal
                 if (partialName is not null)
                 {
                     selectText +=
-                        $@"and game_name like '%' || :partialname || '%'";
+                        $@"and game_name like '%' {_strConcatOperator} :partialname {_strConcatOperator} '%'";
 
                 }
                 if (partialTags is not null)
                 {
                     selectText +=
-                        $@"and game_tags like '%' || :partialtags || '%' ";
+                        $@"and game_tags like '%' {_strConcatOperator} :partialtags {_strConcatOperator} '%' ";
                 }
 
                 using DbCommand cmd = conn.CreateCommand();
