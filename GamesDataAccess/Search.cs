@@ -104,13 +104,13 @@ namespace GamesDataAccess
             if (criteria?.PriceFrom is not null)
             {
                 selectText +=
-                $@" and GT.purchase_price >= :pricefrom";
+                $@" and GT.price >= :pricefrom";
             }
 
             if (criteria?.PriceTo is not null)
             {
                 selectText +=
-                $@" and GT.purchase_price <= :priceto";
+                $@" and GT.price <= :priceto";
             }
 
             Action<DbCommand> addParametersAction =
@@ -118,12 +118,12 @@ namespace GamesDataAccess
                 {
                     if (criteria?.PurchaseDateFrom is not null)
                     {
-                        cmd.AddParameterWithValue("purchasedatefrom", criteria.PurchaseDateFrom);
+                        cmd.AddParameterWithValue("purchasedatefrom", criteria.PurchaseDateFrom.Value, DbType.DateTime);
                     }
 
                     if (criteria?.PurchaseDateTo is not null)
                     {
-                        cmd.AddParameterWithValue("purchasedateto", criteria.PurchaseDateTo);
+                        cmd.AddParameterWithValue("purchasedateto", criteria.PurchaseDateTo.Value, DbType.DateTime);
                     }
 
                     if (criteria?.IsVirtual is not null)
@@ -168,12 +168,12 @@ namespace GamesDataAccess
 
                     if (criteria?.PriceFrom is not null)
                     {
-                        cmd.AddParameterWithValue("pricefrom", criteria.PriceFrom);
+                        cmd.AddParameterWithValue("pricefrom", criteria.PriceFrom.Value, DbType.Decimal);
                     }
 
                     if (criteria?.PriceTo is not null)
                     {
-                        cmd.AddParameterWithValue("priceto", criteria.PriceTo);
+                        cmd.AddParameterWithValue("priceto", criteria.PriceTo.Value, DbType.Decimal);
                     }
 
                 };

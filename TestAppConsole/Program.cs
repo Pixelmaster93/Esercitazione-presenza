@@ -53,8 +53,7 @@ Console.WriteLine(new string('-', 80));
 //{
 //    Console.WriteLine(game);
 //}
-
-Console.WriteLine(new string('-', 80));
+//Console.WriteLine(new string('-', 80));
 
 //StoreDbItem[] stores = gamesDao.GetAllStores();
 
@@ -62,7 +61,7 @@ Console.WriteLine(new string('-', 80));
 //{
 //    Console.WriteLine(store);
 //}
-Console.WriteLine(new string('-', 80));
+//Console.WriteLine(new string('-', 80));
 
 //PlatformDbItem[] platforms = gamesDao.GetAllPlatforms();
 
@@ -70,7 +69,7 @@ Console.WriteLine(new string('-', 80));
 //{
 //    Console.WriteLine(platform);
 //}
-Console.WriteLine(new string('-', 80));
+//Console.WriteLine(new string('-', 80));
 
 //TransactionDbItem[] transactions = gamesDao.GetAllTransactions();
 
@@ -78,7 +77,7 @@ Console.WriteLine(new string('-', 80));
 //{
 //    Console.WriteLine(tarnsaction);
 //}
-Console.WriteLine(new string('-', 80));
+//Console.WriteLine(new string('-', 80));
 
 var ownedGames =
     gamesDao
@@ -86,7 +85,9 @@ var ownedGames =
     (
         new GamesCriteria
         {
-            PurchaseDateFrom = new DateTime(2022, 1, 1)
+            //PurchaseDateFrom = new DateTime(2020, 03, 12)
+            //PriceTo = 50
+            GameName = "zel"
         }
     );
 
