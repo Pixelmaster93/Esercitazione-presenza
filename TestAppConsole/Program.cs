@@ -1,5 +1,6 @@
 ﻿using System.Data.SQLite;
 using GamesDataAccess;
+using GamesDataAccess.Criteria;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -32,6 +33,8 @@ dataPopular.AddSomeStores();
 dataPopular.AddSomePlatforms();
 dataPopular.AddSomeTransactions();
 
+Console.WriteLine(new string('-', 80));
+
 /*
 //Console.WriteLine($"Added {plat} game(s)");
 
@@ -45,31 +48,60 @@ dataPopular.AddSomeTransactions();
 //        Console.WriteLine(game);
 //}
 */
-GameDbItem[] games = gamesDao.GetAllGames();
-foreach (var game in games)
+//GameDbItem[] games = gamesDao.GetAllGames();
+//foreach (var game in games)
+//{
+//    Console.WriteLine(game);
+//}
+
+Console.WriteLine(new string('-', 80));
+
+//StoreDbItem[] stores = gamesDao.GetAllStores();
+
+//foreach (var store in stores)
+//{
+//    Console.WriteLine(store);
+//}
+Console.WriteLine(new string('-', 80));
+
+//PlatformDbItem[] platforms = gamesDao.GetAllPlatforms();
+
+//foreach (var platform in platforms)
+//{
+//    Console.WriteLine(platform);
+//}
+Console.WriteLine(new string('-', 80));
+
+//TransactionDbItem[] transactions = gamesDao.GetAllTransactions();
+
+//foreach (var tarnsaction in transactions)
+//{
+//    Console.WriteLine(tarnsaction);
+//}
+Console.WriteLine(new string('-', 80));
+
+var ownedGames =
+    gamesDao
+    .GetOwnedGamesByCriteria
+    (
+        new GamesCriteria
+        {
+            PurchaseDateFrom = new DateTime(2022, 1, 1)
+        }
+    );
+
+foreach (var tx in ownedGames)
 {
-    Console.WriteLine(game);
+    Console.WriteLine(tx);
 }
+Console.WriteLine(new string('-', 80));
 
-StoreDbItem[] stores = gamesDao.GetAllStores();
 
-foreach (var store in stores)
+OwnedGameDbItem[] allOwnedGames = gamesDao.GetAllOwnedGames();
+
+foreach (var ownedGame in allOwnedGames)
 {
-    Console.WriteLine(store);
-}
-
-PlatformDbItem[] platforms = gamesDao.GetAllPlatforms();
-
-foreach (var platform in platforms)
-{
-    Console.WriteLine(platform);
-}
-
-TransactionDbItem[] transactions = gamesDao.GetAllTransactions();
-
-foreach (var tarnsaction in transactions)
-{
-    Console.WriteLine(tarnsaction);
+    Console.WriteLine(ownedGame);
 }
 /*
 //Console.WriteLine("Inserire nome del gioco!");

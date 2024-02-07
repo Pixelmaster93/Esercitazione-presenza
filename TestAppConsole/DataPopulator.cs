@@ -202,9 +202,9 @@ class DataPopulator
                 "TX0002",
                 new DateTime(2022, 05, 18),
                 true,
-                "ps5",
-                "elden-ring",
                 "instantstore",
+                "elden-ring",
+                "ps5",
                 45,
                 ""
             );
